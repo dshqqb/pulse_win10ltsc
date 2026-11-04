@@ -276,10 +276,15 @@ std::vector<ShellMenuEntry> ApplyExplorerPrefs(const ContextMenuPrefs& prefs,
 }
 
 std::wstring ContextMenuController::CacheKey(bool background,
-                                             const std::wstring& extension, bool multi) {
-    if (background) return L":bg";
+                                             const std::wstring& extension, bool multi,
+                                             bool extended) {
+    // Shift's extended verbs (在此处打开 PowerShell 窗口 …) change the COM row
+    // set, so the cache must not mix an extended answer into a plain query or
+    // the other way round.
+    if (background) return extended ? L":bg|x" : L":bg";
     std::wstring key = extension.empty() ? L":file" : extension;
     if (multi) key += L"|m";
+    if (extended) key += L"|x";
     return key;
 }
 
@@ -334,7 +339,7 @@ void ContextMenuController::Close() {
     const bool drain = live != 0 && !com_ready_ && query_started_at_ != 0;
     Draining next;
     if (drain) {
-        next = { live, CacheKey(background_, extension_, paths_.size() > 1), names_,
+        next = { live, CacheKey(background_, extension_, paths_.size() > 1, extended_), names_,
                  cache_generation_, GetTickCount64() };
     }
     display_snapshot_valid_ = false;
@@ -422,7 +427,7 @@ bool ContextMenuController::MayGrowAfterOpen() const {
     if (static_pending_.contains(extension_) && !static_cache_.contains(extension_)) return true;
     if (token_ == 0 || com_ready_) return false;
     if (!com_predicted_) return true;
-    const CtxHandlerStats* stats = ComHandlerStats(CacheKey(background_, extension_, paths_.size() > 1));
+    const CtxHandlerStats* stats = ComHandlerStats(CacheKey(background_, extension_, paths_.size() > 1, extended_));
     if (!stats || stats->empty()) return true;
     return std::any_of(stats->begin(), stats->end(),
                        [](const CtxHandlerStat& stat) { return !stat.done; });
@@ -616,7 +621,7 @@ void ContextMenuController::InvalidateCaches() {
 
 bool ContextMenuController::SeedComItemsFromCache() {
     if (com_ready_ || !com_items_.empty()) return false;
-    const auto found = com_cache_.find(CacheKey(background_, extension_, paths_.size() > 1));
+    const auto found = com_cache_.find(CacheKey(background_, extension_, paths_.size() > 1, extended_));
     if (found == com_cache_.end() || found->second.rows.empty()) return false;
     found->second.used = ++com_use_clock_;
     com_items_ = found->second.rows;
@@ -737,7 +742,7 @@ ContextMenuController::QueryCompletion ContextMenuController::CompleteComQuery(
     if (token == 0 || token != token_) return result;
     result.accepted = true;
     result.partial = partial;
-    result.cache_key = CacheKey(background_, extension_, paths_.size() > 1);
+    result.cache_key = CacheKey(background_, extension_, paths_.size() > 1, extended_);
     // Without handler states a partial snapshot only holds the handlers that
     // finished inside the host's fast budget, so it must feed this session
     // and nothing else: caching an incomplete list made packaged verbs

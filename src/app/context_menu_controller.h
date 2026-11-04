@@ -56,9 +56,10 @@ public:
         std::wstring cache_key;
     };
 
-    // ".docx", ":folder", ...; several selected items add "|m".
+    // ".docx", ":folder", ...; several selected items add "|m"; a Shift
+    // extended query adds "|x" (its COM rows differ).
     static std::wstring CacheKey(bool background, const std::wstring& extension,
-                                 bool multi = false);
+                                 bool multi = false, bool extended = false);
 
     void SetShellOperations(ShellOperations operations) { operations_ = std::move(operations); }
     void StartQuery(ContextMenuPrefs& prefs, HWND hwnd,
