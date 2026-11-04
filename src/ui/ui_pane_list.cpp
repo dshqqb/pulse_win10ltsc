@@ -2066,6 +2066,43 @@ void MainRenderer::DrawCloudBadge(const ListEntryView& entry, const D2D1_RECT_F&
     DrawIconText(left, top, d, d, look.glyph, L"", WithAlpha(ink, opacity), 0.62f);
 }
 
+void MainRenderer::DrawGitBadge(float x, float y, float size, GitMark mark, bool in_repo,
+                                const Theme& theme, float opacity) {
+    auto* dc = compositor_ ? compositor_->Dc() : nullptr;
+    if (!dc || opacity <= 0.0f || (!in_repo && mark == GitMark::None)) return;
+    // Below ~12 px the glyph is unreadable; Details rows also carry the name
+    // tint and the badge pill, so a bare corner dot adds nothing there.
+    if (size < 12.0f * scale_) return;
+    const bool dark = theme.bg.r < 0.5f;
+    const float d = std::round(std::clamp(size * 0.42f, 9.0f * scale_, 26.0f * scale_));
+    const float left = x + size - d;
+    const float top = y + size - d;
+    const D2D1_ELLIPSE circle = D2D1::Ellipse(D2D1::Point2F(left + d * 0.5f, top + d * 0.5f),
+                                              d * 0.5f, d * 0.5f);
+    // A row inside a repository that git reports as unchanged: the green check
+    // TortoiseGit shows (its own plate color, the in-app palette's green).
+    const GitMark plate_mark = mark == GitMark::None ? GitMark::Added : mark;
+    const wchar_t* glyph = L"\xE73E";  // Checkmark: unchanged, added, renamed
+    switch (mark) {
+    case GitMark::Modified: glyph = L"\xE70F"; break;  // Edit (a pencil)
+    case GitMark::Deleted: glyph = L"\xE711"; break;   // Close (an x)
+    case GitMark::Conflict: glyph = L"\xE7BA"; break;  // Warning
+    case GitMark::Locked: glyph = L"\xE72E"; break;    // Lock
+    default: break;
+    }
+    // A background halo keeps the plate readable on same-colored icons.
+    D2D1_COLOR_F halo = theme.bg;
+    halo.a = opacity;
+    MakeBrush(dc, halo, brFillInput_);
+    dc->FillEllipse(D2D1::Ellipse(circle.point, circle.radiusX + 1.5f * scale_,
+                                  circle.radiusY + 1.5f * scale_), brFillInput_.get());
+    MakeBrush(dc, WithAlpha(GitMarkColor(plate_mark, dark), opacity), brFillInput_);
+    dc->FillEllipse(circle, brFillInput_.get());
+    if (d < 11.0f * scale_) return;
+    const D2D1_COLOR_F ink = IsHighContrast() ? theme.text : D2D1::ColorF(0xFFFFFF);
+    DrawIconText(left, top, d, d, glyph, L"", WithAlpha(ink, opacity), 0.62f);
+}
+
 void MainRenderer::DrawEntryIcon(const ListEntryView& entry, float x, float y, float size,
                                  const Theme& theme, float opacity) {
     const auto dest = D2D1::RectF(x, y, x + size, y + size);
@@ -5123,6 +5160,13 @@ void MainRenderer::DrawList(const PaneViewModel& vm, float x, float y, float w, 
                         DrawEntryIcon(e, iconX, iconY, renderedIconSize, theme, hidden_alpha);
                     }
                 }
+                // TortoiseGit-style working-tree mark on the icon corner. The
+                // map exists whenever the folder is inside a repository, so
+                // rows git reports as unchanged take the green check.
+                if (!e.record_only && !e.launcher_rgb && !e.device && !e.net_kind &&
+                    e.name != L".git" && vm.git_marks)
+                    DrawGitBadge(iconX, iconY, renderedIconSize, vm.GitMarkAt(src), true,
+                                 theme, hidden_alpha);
             }
             if (draw_shapes && ai_painter && !morph_item && !iconGrid) {
                 ai_painter->IconDecor(iconRect);

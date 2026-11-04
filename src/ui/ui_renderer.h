@@ -897,6 +897,11 @@ private:
     // artwork's bottom-left (shell icons) or inside its top-left (pictures).
     void DrawCloudBadge(const ListEntryView& entry, const D2D1_RECT_F& artwork, bool picture,
                         const Theme& theme, float opacity);
+    // Git working-tree state on the icon's bottom-right corner (in-app Git):
+    // a colored plate with the state glyph; rows git reports as unchanged get
+    // a plain green check, like TortoiseGit's overlays.
+    void DrawGitBadge(float x, float y, float size, GitMark mark, bool in_repo,
+                      const Theme& theme, float opacity = 1.0f);
     // Photo wall picture tile over its thumbnail: a hairline edge, the dark
     // fade its name sits on while hovered or selected, the selection ring.
     void DrawWallTileChrome(const D2D1_RECT_F& tile, bool hover, bool selected, const Theme& theme);

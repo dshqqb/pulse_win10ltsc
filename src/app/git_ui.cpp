@@ -235,7 +235,9 @@ void FillGitPane(AppState& s, const app::Tab& tab, ui::PaneViewModel& pane) {
         RequestStatus(s, root);
     }
     const auto status = app::GitStatusFor(root);
-    if (!status || status->changed == 0 || !tab.snapshot) return;
+    // A clean repository still produces (an empty) git_marks: the renderer
+    // draws its green checks from the map existing, not from entries in it.
+    if (!status || !tab.snapshot) return;
 
     // Rows only change with the listing or the answer: keep the last few maps.
     struct Cached {

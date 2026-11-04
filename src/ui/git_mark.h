@@ -33,7 +33,7 @@ inline D2D1_COLOR_F GitMarkColor(GitMark mark, bool dark) {
     switch (mark) {
     case GitMark::Added: rgb = dark ? 0x73C991u : 0x1A7F37u; break;
     case GitMark::Renamed: rgb = dark ? 0x5EC4D8u : 0x0E7490u; break;
-    case GitMark::Modified: rgb = dark ? 0xE2C08Du : 0x9A6700u; break;
+    case GitMark::Modified: rgb = dark ? 0xF14C4Cu : 0xD1242Fu; break; // red like TortoiseGit's modified overlay
     case GitMark::Deleted: rgb = dark ? 0xF0827Au : 0xB42318u; break;
     case GitMark::Conflict: rgb = dark ? 0xFF7B72u : 0xCF222Eu; break;
     case GitMark::Locked: rgb = dark ? 0xB5B9C4u : 0x5F6470u; break;
