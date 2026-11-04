@@ -1283,9 +1283,10 @@ void OpsManager::ExecuteCommand(const std::wstring& command, const std::wstring&
 void OpsManager::OpenTerminal(const std::wstring& dir) {
     QueueItem item;
     item.open_path = dir;
-    item.open_file = L"wt.exe";
+    const ops::TerminalChoice choice = ops::TerminalFor(dir);
+    item.open_file = choice.executable;
     item.open_verb = L"__terminal";
-    item.open_args = TerminalCommandLine(dir);
+    item.open_args = choice.arguments;
     EnqueueOpen(std::move(item));
 }
 

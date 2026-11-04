@@ -176,6 +176,15 @@ int wmain(int argc, wchar_t** argv) {
         TerminalCommandLine(L"C:\\") == L"-d \"C:\\\\\"" &&
         TerminalCommandLine(L"\\\\?\\UNC\\server\\share\\") == L"-d \"\\\\server\\share\\\\\"",
         "terminal arguments strip extended prefixes and quote trailing directory separators");
+    const auto terminal_choice = TerminalFor(L"D:\\it's folder\\");
+    if (terminal_choice.executable == L"wt.exe") {
+        check(terminal_choice.arguments == TerminalCommandLine(L"D:\\it's folder\\"),
+            "terminal choice keeps the wt.exe -d command line when Windows Terminal is installed");
+    } else {
+        check(terminal_choice.executable == L"powershell.exe" &&
+            terminal_choice.arguments == L"-NoExit -Command Set-Location -LiteralPath 'D:\\it''s folder\\'",
+            "terminal fallback to PowerShell keeps spaces, trailing separators and doubles embedded quotes");
+    }
     auto terminal = LaunchTerminal(L"wt.exe", terminal_args, terminal_dir, owner, stub);
     check(!terminal.error && !terminal.elevation_requested && shell_calls == 1 && actual_verb == L"open" &&
         actual_file == L"wt.exe" && actual_args == terminal_args && actual_dir == L"C:\\工具 folder\\" &&

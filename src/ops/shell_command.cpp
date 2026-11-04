@@ -152,4 +152,26 @@ std::wstring TerminalCommandLine(const std::wstring& dir) {
     return L"-d " + QuoteWindowsArgument(pulse::path::StripExtendedPathPrefix(dir));
 }
 
+TerminalChoice TerminalFor(const std::wstring& directory) {
+    TerminalChoice choice;
+    std::vector<wchar_t> buffer(32768);
+    if (SearchPathW(nullptr, L"wt.exe", L".exe", static_cast<DWORD>(buffer.size()),
+                    buffer.data(), nullptr)) {
+        choice.executable = L"wt.exe";
+        choice.arguments = TerminalCommandLine(directory);
+        return choice;
+    }
+    // No Windows Terminal (LTSC / stripped installs): PowerShell exists on
+    // every supported Windows. PowerShell single quotes keep spaces and
+    // trailing backslashes literal; embedded quotes are doubled.
+    std::wstring inner;
+    for (const wchar_t c : pulse::path::StripExtendedPathPrefix(directory)) {
+        inner += c;
+        if (c == L'\'') inner += L'\'';
+    }
+    choice.executable = L"powershell.exe";
+    choice.arguments = L"-NoExit -Command Set-Location -LiteralPath '" + inner + L"'";
+    return choice;
+}
+
 }

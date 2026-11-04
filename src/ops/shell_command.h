@@ -37,6 +37,13 @@ struct TerminalLaunchResult {
 // embedded/closing quotes. Does not interpret shell or template metacharacters.
 std::wstring QuoteWindowsArgument(std::wstring_view value);
 std::wstring TerminalCommandLine(const std::wstring& directory);
+struct TerminalChoice {
+    std::wstring executable;
+    std::wstring arguments;
+};
+// Windows Terminal when it is on the search path, else PowerShell (present on
+// every supported Windows). The arguments match the chosen executable.
+TerminalChoice TerminalFor(const std::wstring& directory);
 TerminalLaunchResult LaunchTerminal(const std::wstring& executable, const std::wstring& arguments,
     const std::wstring& directory, HWND owner, const ShellCommandApi& api = {});
 }
