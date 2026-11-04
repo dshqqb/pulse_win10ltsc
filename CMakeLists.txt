@@ -961,7 +961,7 @@ target_link_libraries(pulse_preview_handler_probe PRIVATE
 
 add_executable(pulse_preview_handler_pan_test src/bench/preview_handler_pan_test.cpp)
 add_executable(pulse_directory_test src/bench/directory_regression_test.cpp)
-add_executable(pulse_fs_audit_test src/bench/fs_audit_test.cpp)
+add_executable(pulse_fs_audit_test src/bench/fs_audit_test.cpp src/fs/device_worker.cpp)
 target_link_libraries(pulse_fs_audit_test PRIVATE pulse_localization user32 shell32 shlwapi netapi32 advapi32)
 add_executable(pulse_enum_benchmark_test src/bench/enum_benchmark_test.cpp)
 target_link_libraries(pulse_enum_benchmark_test PRIVATE shell32 shlwapi)
@@ -981,6 +981,7 @@ target_link_libraries(pulse_persistence_test PRIVATE
 add_executable(pulse_session_window_test src/bench/session_window_test.cpp
     src/app/session.cpp src/app/session_tab_model.cpp src/app/tab_group_model.cpp src/app/window_identity.cpp
     src/app/app_model.cpp src/app/cloud_roots.cpp src/app/places.cpp src/app/entry_group.cpp src/app/tag_ads_sync.cpp
+    src/app/git_status.cpp src/app/tag_query.cpp
     src/app/pane_layout.cpp src/app/column_view_model.cpp src/app/search_query.cpp
     src/app/search_query_rewrite.cpp src/index/index_query.cpp src/index/search_kinds.cpp
     src/index/content_result_store.cpp src/fs/fs_enum.cpp src/ui/view_layout.cpp)
@@ -990,6 +991,7 @@ target_link_libraries(pulse_session_window_test PRIVATE
 add_executable(pulse_pane_drop_test src/bench/pane_drop_test.cpp src/app/pane_drop.cpp
     src/app/session.cpp src/app/session_tab_model.cpp src/app/window_identity.cpp
     src/app/app_model.cpp src/app/cloud_roots.cpp src/app/places.cpp src/app/entry_group.cpp src/app/tag_ads_sync.cpp
+    src/app/git_status.cpp src/app/tag_query.cpp
     src/app/tab_group_model.cpp src/app/pane_layout.cpp src/app/column_view_model.cpp src/app/search_query.cpp
     src/app/search_query_rewrite.cpp src/index/index_query.cpp src/index/search_kinds.cpp
     src/index/content_result_store.cpp src/fs/fs_enum.cpp src/ui/view_layout.cpp)
@@ -998,6 +1000,7 @@ target_link_libraries(pulse_pane_drop_test PRIVATE
 # Toolbar / chip / item menu: what a drive, a share or a Recycle Bin item can do.
 add_executable(pulse_selection_caps_test src/bench/selection_caps_test.cpp
     src/app/app_model.cpp src/app/cloud_roots.cpp src/app/places.cpp src/app/entry_group.cpp src/app/tag_ads_sync.cpp
+    src/app/git_status.cpp src/app/tag_query.cpp
     src/app/pane_layout.cpp src/app/column_view_model.cpp src/app/search_query.cpp
     src/app/search_query_rewrite.cpp src/index/index_query.cpp src/index/search_kinds.cpp
     src/index/content_result_store.cpp src/fs/fs_enum.cpp src/ui/view_layout.cpp)
@@ -1778,7 +1781,8 @@ add_executable(pulse_unc_probe_order_test src/bench/unc_probe_order_test.cpp)
 add_executable(pulse_enum_cancel_test src/bench/enum_cancel_test.cpp)
 target_link_libraries(pulse_enum_cancel_test PRIVATE pulse_localization shell32 shlwapi netapi32)
 
-add_executable(pulse_worker_enum_cancel_test src/bench/worker_enum_cancel_test.cpp)
+add_executable(pulse_worker_enum_cancel_test src/bench/worker_enum_cancel_test.cpp src/fs/device_worker.cpp)
+target_link_libraries(pulse_worker_enum_cancel_test PRIVATE pulse_localization)
 
 add_executable(pulse_shell_benchmark_test src/bench/shell_benchmark_test.cpp)
 target_link_libraries(pulse_shell_benchmark_test PRIVATE ole32 shell32 uuid comctl32)
@@ -1902,7 +1906,8 @@ add_executable(pulse_config_capacity_test src/bench/config_capacity_test.cpp
     src/app/places.cpp src/app/tag_ads_sync.cpp src/fs/fs_enum.cpp src/ui/view_layout.cpp)
 target_link_libraries(pulse_config_capacity_test PRIVATE user32 shell32 ole32 uuid advapi32 shlwapi netapi32 pulse_localization pulse_runtime_log)
 
-add_executable(pulse_virtual_worker_consumers_test src/bench/virtual_worker_consumers_test.cpp)
+add_executable(pulse_virtual_worker_consumers_test src/bench/virtual_worker_consumers_test.cpp src/fs/device_worker.cpp)
+target_link_libraries(pulse_virtual_worker_consumers_test PRIVATE pulse_localization)
 
 target_sources(pulse_persistence_test PRIVATE src/app/this_pc_argument.cpp)
 target_sources(pulse_single_instance_audit_test PRIVATE src/app/this_pc_argument.cpp)
@@ -2068,6 +2073,7 @@ add_executable(pulse_advanced_search_query_test src/bench/advanced_search_query_
     src/bench/dialog_gallery.rc
     src/ui/dialog_lifecycle.cpp
     src/ui/advanced_search_dialog.cpp src/ui/edit_host.cpp src/ui/fluent_components.cpp
+    src/ui/ai_panel_icons.cpp
     src/ui/tab_shape.cpp src/ui/typography.cpp src/ui/ui_compositor.cpp src/ui/window_helpers.cpp
     src/app/search_query.cpp src/app/search_query_rewrite.cpp
     src/index/index_query.cpp src/index/search_kinds.cpp src/index/filename_pinyin.cpp)

@@ -33,6 +33,10 @@ void EnumerateRecycleBin(std::vector<DirEntry>&, RecycleBinInfo*) {}
 bool QueryDirectoryIdentity(const std::wstring&, DirectoryIdentity&) { return true; }
 NetSnapshotWrite BeginNetSnapshotWrite(const std::wstring&) { return {}; }
 bool SaveNetSnapshot(const NetSnapshotWrite&, const SnapshotPtr&) { return true; }
+bool IsDevicePath(const std::wstring&) { return false; }
+std::wstring FormatDevicePath(const DevicePath&) { return {}; }
+uint64_t WatchClock() noexcept { return 0; }
+void WaitForStartingWatch(const std::wstring&, DWORD, DWORD) {}
 }
 namespace pulse::app {
 std::wstring FindGitRoot(const std::wstring&) { return {}; }
@@ -46,6 +50,18 @@ void SortEntriesBySize(std::vector<fs::DirEntry>&, ui::SortDirection, const Fold
 void SortEntries(std::vector<fs::DirEntry>& entries, ui::SortColumn col, ui::SortDirection dir, const std::function<void()>& tick) {
     std::sort(entries.begin(), entries.end(), [&](const fs::DirEntry& a, const fs::DirEntry& b) { if (tick) tick(); return EntryLess(a, b, col, dir); });
 }
+FolderSortMode DefaultFolderSortMode() noexcept { return FolderSortMode::FoldersFirst; }
+ScopedFolderSortMode::ScopedFolderSortMode(FolderSortMode) noexcept {}
+ScopedFolderSortMode::~ScopedFolderSortMode() = default;
+std::vector<ThisPcLauncher> CurrentThisPcLaunchers() { return {}; }
+namespace startup_trace { void Mark(const char*) noexcept {} }
+// The test never visits pulse:device: folders; stub the registry the worker
+// consults for them (IsDevicePath above answers false as well).
+DeviceRegistry::DeviceRegistry() {}
+DeviceRegistry& DeviceRegistry::Instance() { static DeviceRegistry registry; return registry; }
+std::vector<fs::DeviceInfo> DeviceRegistry::Devices() const { return {}; }
+fs::DeviceError DeviceRegistry::ListFolder(const std::wstring&, std::vector<fs::DirEntry>&,
+                                           const std::function<bool()>&) { return fs::DeviceError::Failed; }
 }
 namespace pulse::diagnostics::runtime {
 void Event(const char*, std::initializer_list<Field>, Level) noexcept {}

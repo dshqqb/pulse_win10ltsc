@@ -70,7 +70,12 @@ void Gallery(IWICImagingFactory* wic, ID2D1Factory* factory, const wchar_t* file
         L"Move to pane",L"Open path",L"New folder",L"Group",L"Dissolve",L"Folder size",L"Workspace",
         L"Toolbar",L"Sidebar",L"Undo",L"Markdown",L"Zip",L"Select all",L"Invert",L"Hidden",L"Protected",
         L"Compact",L"Zebra",L"Size bar",L"Smart date",L"Outline",L"Terminal",L"Search all",L"Map drive",
-        L"Keyboard",L"Pin badge",L"Pin favorites",L"Pin quick",L"Pin workspace",L"Pin network",L"Pin toolbar"
+        L"Keyboard",L"Pin badge",L"Pin favorites",L"Pin quick",L"Pin workspace",L"Pin network",L"Pin toolbar",
+        L"Group by",L"App",L"Folder list",
+        L"Reset",L"Text",L"Package",L"Unpin",L"Stack",L"Video",L"Cloud",L"Error",L"Merge",L"Pause",L"Play",
+        L"Send",L"Bar",L"Move",L"Power",L"Bulb",L"Pointer",L"Import",L"Export",L"Bolt",L"Camera",L"Fav bar",
+        L"Full screen",L"Save",L"Unlock",L"Eject",L"Skip",L"Disconnect",L"Music",L"Wrench",L"Timer",L"Help",L"Puzzle",
+        L"Sparkle"
     };
     static_assert(std::size(names) == static_cast<size_t>(Icon::Count)-1);
     constexpr int kRows = static_cast<int>((std::size(names) + 10) / 11);
